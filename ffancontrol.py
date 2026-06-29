@@ -18,14 +18,16 @@ logger = logging.getLogger(__name__)
 
 # Пути к системным файлам
 FAN_CONTROL_PATH: Final[Path] = Path('/proc/acpi/ibm/fan')
-CPU_TEMP_PATH: Final[Path] = Path('/sys/class/thermal/thermal_zone0/temp')
 
 
 def read_cpu_temperature() -> float:
     """Читает температуру процессора в градусах Цельсия."""
-    with CPU_TEMP_PATH.open("r") as f:
-        temp_milli = int(f.read().strip())
-        return temp_milli / 1000.0
+    sensors_paths = Path('/sys/class/thermal/').glob('thermal_zone*')
+
+    for sensor in sensors_paths:
+        if (sensor / 'type').read_text().startswith('TCPU'):
+            return int((sensor / 'temp').read_text()) / 1000.0
+    return 0.0
 
 
 def set_fan_mode(mode: str) -> None:
@@ -51,12 +53,14 @@ def get_fan_level(temp: float) -> str:
     """
     match temp:
         case num if num < 30:
-            return "2"
-        case num if num in range(30, 45):
+            return "3"
+        case num if num <= 40:
             return "4"
-        case num if num in range(45, 60):
+        case num if num <= 50:
+            return "5"
+        case num if num <= 60:
             return "6"
-        case num if num >= 60:
+        case num if num > 60:
             return "7"
         case _:
             return "auto"
@@ -67,10 +71,6 @@ def main():
     # Проверка наличия необходимых файлов
     if not FAN_CONTROL_PATH.exists():
         logger.error(f"Файл управления вентилятором не найден: {FAN_CONTROL_PATH}")
-        return 1
-
-    if not CPU_TEMP_PATH.exists():
-        logger.error(f"Файл температуры CPU не найден: {CPU_TEMP_PATH}")
         return 1
 
     try:
