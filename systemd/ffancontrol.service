@@ -1,0 +1,11 @@
+[Unit]
+Description=Simple fan control service
+After=local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ffancontrol.py
+
+[Install]
+WantedBy=multi-user.target
