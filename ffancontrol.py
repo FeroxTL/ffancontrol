@@ -7,7 +7,7 @@ from typing import Final
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         # logging.FileHandler("/var/log/ffancontrol.log"),
         logging.StreamHandler()
@@ -42,10 +42,10 @@ def set_fan_mode(mode: str) -> None:
 def get_fan_level(temp: float) -> str:
     """
     Определяет уровень вентилятора на основе температуры.
-    
+
     Args:
         temp: Текущая температура CPU в градусах Цельсия
-        
+
     Returns:
         Строка с режимом вентилятора ('auto')
     """
@@ -68,7 +68,7 @@ def main():
     if not FAN_CONTROL_PATH.exists():
         logger.error(f"Файл управления вентилятором не найден: {FAN_CONTROL_PATH}")
         return 1
-        
+
     if not CPU_TEMP_PATH.exists():
         logger.error(f"Файл температуры CPU не найден: {CPU_TEMP_PATH}")
         return 1
@@ -78,7 +78,7 @@ def main():
         temp = read_cpu_temperature()
         logger.info(f"Температура CPU: {temp:.1f}°C")
     except Exception as e:
-        logger.exception('Не удалось прочитать температуру CPU', e)
+        logger.exception("Не удалось прочитать температуру CPU", e)
         return 1
 
     try:
