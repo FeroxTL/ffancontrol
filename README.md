@@ -1,14 +1,14 @@
-Lenovo thinkbook G-series управление оборотами вентилятора
+Lenovo ThinkBook G-series fan speed control
 
-Устанавливает обороты в зависимости от температуры процессора. 
+Sets fan speed based on CPU temperature.
 
-Установка:
+Installation:
 
 ```sh
 install.sh
 ```
 
-Удаление:
+Uninstallation:
 
 ```sh
 uninstall.sh

@@ -5,7 +5,7 @@ from time import sleep
 from typing import Final
 
 
-# Настройка логирования
+# Logging configuration
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -17,12 +17,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Пути к системным файлам
+# System file paths
 FAN_CONTROL_PATH: Final[Path] = Path('/proc/acpi/ibm/fan')
 
 
 def read_cpu_temperature() -> float:
-    """Читает температуру процессора в градусах Цельсия."""
+    """Reads CPU temperature in degrees Celsius."""
     sensors_paths = Path('/sys/class/thermal/').glob('thermal_zone*')
 
     for sensor in sensors_paths:
@@ -37,10 +37,10 @@ def read_cpu_temperature() -> float:
 
 def set_fan_mode(mode: str) -> None:
     """
-    Устанавливает режим работы вентилятора.
+    Sets fan operation mode.
 
     Args:
-        mode: 'auto' для автоматического управления, числа 1..7 для ручного
+        mode: 'auto' for automatic control, numbers 1..7 for manual control
     """
     with FAN_CONTROL_PATH.open("w") as f:
         f.write(f"level {mode}")
@@ -48,13 +48,13 @@ def set_fan_mode(mode: str) -> None:
 
 def get_fan_level(temp: float) -> str:
     """
-    Определяет уровень вентилятора на основе температуры.
+    Determines fan level based on temperature.
 
     Args:
-        temp: Текущая температура CPU в градусах Цельсия
+        temp: Current CPU temperature in degrees Celsius
 
     Returns:
-        Строка с режимом вентилятора ('auto')
+        String with fan mode ('auto')
     """
     match temp:
         case num if num < 35:
@@ -72,29 +72,29 @@ def get_fan_level(temp: float) -> str:
 
 
 def main():
-    """Основной цикл программы."""
-    # Проверка наличия необходимых файлов
+    """Main program."""
+    # Check for required files
     if not FAN_CONTROL_PATH.exists():
-        logger.error(f"Файл управления вентилятором не найден: {FAN_CONTROL_PATH}")
+        logger.error(f"Fan control file not found: {FAN_CONTROL_PATH}")
         return 1
 
     try:
-        # Читаем температуру CPU
+        # Read CPU temperature
         temp = read_cpu_temperature()
-        logger.info(f"Температура CPU: {temp:.1f}°C")
+        logger.info(f"CPU temperature: {temp:.1f}°C")
     except Exception as e:
-        logger.exception("Не удалось прочитать температуру CPU", e)
+        logger.exception("Failed to read CPU temperature", e)
         return 1
 
     try:
-        # Определяем необходимый режим вентилятора
+        # Determine required fan mode
         fan_mode = get_fan_level(temp)
 
-        # Устанавливаем режим
+        # Set fan mode
         set_fan_mode(fan_mode)
-        logger.info(f"Режим вентилятора установлен: {fan_mode}")
+        logger.info(f"Fan mode set: {fan_mode}")
     except Exception as e:
-        logger.error(f"Неожиданная ошибка: {e}")
+        logger.error(f"Unexpected error: {e}")
         return 1
 
     return 0
