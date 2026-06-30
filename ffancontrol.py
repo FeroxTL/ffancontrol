@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
+from time import sleep
 from typing import Final
 
 
@@ -26,7 +27,11 @@ def read_cpu_temperature() -> float:
 
     for sensor in sensors_paths:
         if (sensor / 'type').read_text().startswith('TCPU'):
-            return int((sensor / 'temp').read_text()) / 1000.0
+            values = []
+            for x in range(25):
+                values.append(int((sensor / 'temp').read_text()))
+                sleep(0.02)
+            return sum(values) / 25 / 1000.0
     return 0.0
 
 
@@ -52,15 +57,15 @@ def get_fan_level(temp: float) -> str:
         Строка с режимом вентилятора ('auto')
     """
     match temp:
-        case num if num < 30:
+        case num if num < 35:
             return "3"
-        case num if num <= 40:
+        case num if num <= 35:
             return "4"
-        case num if num <= 50:
+        case num if num <= 55:
             return "5"
-        case num if num <= 60:
+        case num if num <= 65:
             return "6"
-        case num if num > 60:
+        case num if num > 65:
             return "7"
         case _:
             return "auto"
